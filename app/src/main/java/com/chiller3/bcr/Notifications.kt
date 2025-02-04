@@ -43,37 +43,8 @@ class Notifications(
 
         /**
          * Hardcoded fallback vibration pattern.
-         *
-         * This is the same as what AOSP defines in VibratorHelper (newer versions) or
-         * NotificationManagerService (older versions). In practice, unless an OEM completely
-         * removes the config_defaultNotificationVibePattern array resource, this is never used.
          */
-        private val DEFAULT_VIBRATE_PATTERN = longArrayOf(0, 250, 250, 250)
-
-        /** Get resource integer array as a long array. */
-        @Suppress("SameParameterValue")
-        private fun getLongArray(resources: Resources, resId: Int): LongArray {
-            val array = resources.getIntArray(resId)
-            val result = LongArray(array.size)
-            for (i in array.indices) {
-                result[i] = array[i].toLong()
-            }
-            return result
-        }
-
-        /**
-         * Get the default notification pattern from the system internal resources.
-         *
-         * This is the pattern that is used by default for notifications.
-         */
-        @SuppressLint("DiscouragedApi")
-        private val defaultPattern = try {
-            getLongArray(systemRes, systemRes.getIdentifier(
-                "config_defaultNotificationVibePattern", "array", "android"))
-        } catch (e: Exception) {
-            Log.w(TAG, "System vibration pattern not found; using hardcoded default", e)
-            DEFAULT_VIBRATE_PATTERN
-        }
+        private val DEFAULT_VIBRATE_PATTERN = longArrayOf(0, 250, 250, 0)
     }
 
     private val prefs = Preferences(context)
@@ -434,8 +405,7 @@ class Notifications(
             }
 
             if (vibrator.hasVibrator()) {
-                val pattern = channel.vibrationPattern ?: defaultPattern
-                val effect = VibrationEffect.createWaveform(pattern, -1)
+                val effect = VibrationEffect.createWaveform(DEFAULT_VIBRATE_PATTERN, -1)
 
                 vibrator.vibrate(effect)
             }
